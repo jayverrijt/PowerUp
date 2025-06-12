@@ -4,14 +4,6 @@
 #
 Power Up/Library/
 Power Up/.utmp/
-Power Up/[Ll]ibrary/
-Power Up/[Tt]emp/
-Power Up/[Oo]bj/
-Power Up/[Bb]uild/
-Power Up/[Bb]uilds/
-Power Up/[Ll]ogs/
-Power Up/[Uu]ser[Ss]ettings/
-Power Up/*.log
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 Power Up/*.blend1
