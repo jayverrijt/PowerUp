@@ -25,24 +25,26 @@ public class Monster : MonoBehaviour
             DecreaseScore();
             Destroy(gameObject);
         }
+
     }
 
-    private void OnMouseDown()
-    {
-        if (strengthText != null && scoreText != null)
-        {
-            int strength = int.Parse(strengthText.text);
-            int currentScore = int.Parse(scoreText.text);
-            int multiplier = 1 * strength;
-            currentScore += multiplier;
-            scoreText.text = currentScore.ToString();
-            Destroy(gameObject);
-        }
-        else
-        {
-            Debug.LogWarning("Missing references for Monster entity");
-        }
-    }
+     public void OnMouseDown()
+     {
+       if (!GameManager.Instance.CanClick(gameObject)) return;
+
+       if (strengthText != null && scoreText != null)
+       {
+           int strength = int.Parse(strengthText.text);
+           int currentScore = int.Parse(scoreText.text);
+           int multiplier = 1 * strength;
+           currentScore += multiplier;
+           scoreText.text = currentScore.ToString();
+           GameManager gm = GameManager.Instance;
+           gm.isGameActive = true;
+           Destroy(gameObject);
+       }
+     }
+
     public void DecreaseScore()
     {
         int strength = int.Parse(strengthText.text);

@@ -48,6 +48,7 @@
     <Compile Include="Assets/Scripts/Spawner.cs" />
     <Compile Include="Assets/Scripts/HasteScript.cs" />
     <Compile Include="Assets/Scripts/GameManager.cs" />
+    <Compile Include="Assets/Scripts/ClickableTracker.cs" />
     <Compile Include="Assets/Scripts/StrengthScript.cs" />
     <Compile Include="Assets/Scripts/Monster.cs" />
     <Reference Include="UnityEngine">

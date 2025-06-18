@@ -9,7 +9,12 @@ public class GameManager : MonoBehaviour
     private int nextSpeedMilestone = 10;
     public Text scoreText;
     public int strength = 1;
-    public int score = 0;
+    public int score = 1;
+    public int speed = 2;
+    public List<Monster> monsters = new List<Monster>();
+    public bool isClickCooldownEnabled = true;
+    private bool hasteClickedOnce = false;
+    public bool isGameActive = false;
     // UI elements
     public Text mainMenuText;
     public GameObject playButton;
@@ -23,13 +28,14 @@ public class GameManager : MonoBehaviour
     public Text scoreTextUI;     // renamed for clarity
     public GameObject ScoreObject;
     public GameObject StrengthObject;
+    public Text RespawnText;
     public Spawner spawner;
 
     // Cached references to spawned instances
     [HideInInspector] public Monster monsterInstance;
     [HideInInspector] public StrengthScript strengthInstance;
     [HideInInspector] public HasteScript hasteInstance;
-    [HideInInspector] public List<Monster> monsters = new List<Monster>();
+
 
 
     private void Awake()
@@ -64,6 +70,7 @@ public class GameManager : MonoBehaviour
         NewGameButton.SetActive(false);
         SpeedText.SetActive(false);
         Speed.SetActive(false);
+        RespawnText.gameObject.SetActive(false);
         // You can disable other UI or objects as needed here
     }
 
@@ -82,6 +89,7 @@ public class GameManager : MonoBehaviour
         SpeedText.SetActive(true);
         Speed.SetActive(true);
         spawner.StartSpawning();
+        RespawnText.gameObject.SetActive(false);
 
         // Enable or reset other gameplay objects if needed
     }
@@ -100,7 +108,9 @@ public class GameManager : MonoBehaviour
         ResumeButton.SetActive(true);
         SpeedText.SetActive(false);
         Speed.SetActive(false);
+        isGameActive = false;
         spawner.StopSpawning();
+        RespawnText.gameObject.SetActive(false);
     }
 
     public void Quit()
@@ -123,11 +133,34 @@ public class GameManager : MonoBehaviour
         SpeedText.SetActive(true);
         Speed.SetActive(true);
         spawner.StartSpawning();
+        RespawnText.gameObject.SetActive(false);
     }
 
     public void Reset()
     {
-
+       strength = 1;
+       score = 1;
+       speed = 2;
+       isClickCooldownEnabled = true;
+       hasteClickedOnce = false;
+       mainMenuText.enabled = false;
+       playButton.SetActive(false);
+       strengthTextUI.enabled = true;
+       scoreTextUI.enabled = true;
+       ScoreObject.SetActive(true);
+       StrengthObject.SetActive(true);
+       QuitButton.SetActive(false);
+       MonsterImage.SetActive(false);
+       ResumeButton.SetActive(false);
+       NewGameButton.SetActive(false);
+       SpeedText.SetActive(true);
+       Speed.SetActive(true);
+       spawner.StartSpawning();
+       isGameActive = true;
+       ScoreObject.GetComponent<Text>().text = score.ToString();
+       StrengthObject.GetComponent<Text>().text = strength.ToString();
+       Speed.GetComponent<Text>().text = "1";
+       RespawnText.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -137,40 +170,89 @@ public class GameManager : MonoBehaviour
             Pause();
         }
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        int currScoreValue;
+        if (int.TryParse(ScoreObject.GetComponent<Text>().text, out currScoreValue))
         {
-            speedUp();
-        }
+            if (isGameActive && currScoreValue <= 0)
+            {
+                GameOver();
+                return;
+            }
 
-        int scoreUpdate = int.Parse(ScoreObject.GetComponent<Text>().text);
-        if (scoreUpdate >= nextSpeedMilestone)
+            if (currScoreValue >= nextSpeedMilestone)
+            {
+                speedUp();
+                nextSpeedMilestone += 10;
+            }
+        }
+        else
         {
-            speedUp();
-            nextSpeedMilestone += 10;
+            // Optionally log or handle this if you expect score to always be valid
+            Debug.LogWarning("Score text could not be parsed: " + scoreTextUI.text);
         }
-
-
     }
 
     public void speedUp()
     {
-        try
+        speed++;
+
+        foreach (var m in monsters)
         {
-            foreach (var monster in monsters)
-            {
-                if (monster != null) monster.speed++;
-            }
-
-            if (strengthInstance != null) strengthInstance.speed++;
-            if (hasteInstance != null) hasteInstance.speed++;
-
-            int currSpeed = int.Parse(Speed.GetComponent<Text>().text);
-            Speed.GetComponent<Text>().text = (currSpeed + 1).ToString();
+            if (m != null)
+                m.speed = speed;
         }
-        catch (Exception e)
+
+        if (monsterInstance != null) monsterInstance.speed = speed;
+        if (strengthInstance != null) strengthInstance.speed = speed;
+        if (hasteInstance != null) hasteInstance.speed = speed;
+
+        Speed.GetComponent<Text>().text = speed.ToString();
+
+        Debug.Log("Speed increased to: " + speed);
+    }
+    public bool CanClick(GameObject obj)
+    {
+        ClickableTracker tracker = obj.GetComponent<ClickableTracker>();
+        if (tracker == null) return true;
+
+        if (!isClickCooldownEnabled) return true;
+
+        if (Time.time - tracker.lastClickTime < 1f)
+            return false;
+
+        tracker.lastClickTime = Time.time;
+        return true;
+    }
+    public void HandleHasteClick()
+    {
+        if (!hasteClickedOnce)
         {
-            Debug.LogError("SpeedUp error: " + e.Message);
+            isClickCooldownEnabled = false;
+            hasteClickedOnce = true;
+            Debug.Log("Click cooldown disabled!");
+        }
+        else
+        {
+            isClickCooldownEnabled = true;
+            Debug.Log("Click cooldown permanently re-enabled!");
         }
     }
 
+    public void GameOver()
+    {
+        isGameActive = false;
+        spawner.StopSpawning();
+        Debug.Log("Game Over!");
+        RespawnText.gameObject.SetActive(true);
+        mainMenuText.enabled = true;
+        NewGameButton.SetActive(true);
+        QuitButton.SetActive(false);
+        Speed.SetActive(false);
+        SpeedText.SetActive(false);
+        ScoreObject.SetActive(false);
+        StrengthObject.SetActive(false);
+        scoreText.enabled = false;
+        strengthTextUI.enabled = false;
+
+    }
 }

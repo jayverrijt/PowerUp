@@ -24,12 +24,14 @@ public class HasteScript : MonoBehaviour
         }
     }
 
-    public void OnMouseDown()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("Testing Haste");
-            Destroy(gameObject);
-        }
-    }
+  public void OnMouseDown()
+  {
+      if (!GameManager.Instance.CanClick(gameObject)) return;
+
+      GameManager.Instance.HandleHasteClick();
+      GameManager gm = GameManager.Instance;
+      gm.isGameActive = true;
+      Destroy(gameObject);
+  }
+
 }

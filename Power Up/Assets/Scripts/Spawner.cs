@@ -13,7 +13,6 @@ public class Spawner : MonoBehaviour
     public Text strengthTextUI;
     public Text scoreTextUI;
 
-
     public float monsterInterval = 2f;
     public float strengthInterval = 0.4f;
     public float hasteInterval = 0.2f;
@@ -44,27 +43,35 @@ public class Spawner : MonoBehaviour
         if (roll < hasteInterval)
         {
             obj = Instantiate(hastePrefab, spawnPos + Vector3.right * 2, Quaternion.identity);
+            HasteScript haste = obj.GetComponent<HasteScript>();
+            if (haste != null)
+            {
+                haste.speed = GameManager.Instance.speed;
+                GameManager.Instance.hasteInstance = haste;
+            }
         }
         else if (roll < strengthInterval)
         {
             obj = Instantiate(strengthPrefab, spawnPos + Vector3.right * 2, Quaternion.identity);
-            StrengthScript ss = obj.GetComponent<StrengthScript>();
-            if (ss != null && strengthTextUI != null)
+            StrengthScript strength = obj.GetComponent<StrengthScript>();
+            if (strength != null)
             {
-                ss.SetTextReference(strengthTextUI);
+                strength.SetTextReference(strengthTextUI);
+                strength.speed = GameManager.Instance.speed;
+                GameManager.Instance.strengthInstance = strength;
             }
         }
         else
         {
             obj = Instantiate(monsterPrefab, spawnPos + Vector3.right * 2, Quaternion.identity);
             Monster monsterScript = obj.GetComponent<Monster>();
-            if (monsterScript != null && strengthTextUI != null && scoreTextUI != null)
+            if (monsterScript != null)
             {
                 monsterScript.SetUITextReferences(strengthTextUI, scoreTextUI);
+                monsterScript.speed = GameManager.Instance.speed;
+                GameManager.Instance.monsterInstance = monsterScript;
                 GameManager.Instance.monsters.Add(monsterScript);
-
             }
         }
     }
-
 }
