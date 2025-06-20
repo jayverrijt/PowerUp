@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,8 +15,8 @@ public class Spawner : MonoBehaviour
     public Text scoreTextUI;
 
     public float monsterInterval = 2f;
-    public float strengthInterval = 0.4f;
-    public float hasteInterval = 0.2f;
+    public float strengthInterval = 0.2f;
+    public float hasteInterval = 0.1f;
 
     private bool isSpawning = false;
 

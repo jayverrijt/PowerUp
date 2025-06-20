@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +7,11 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-    private int nextSpeedMilestone = 10;
+    private int nextSpeedMilestone = 5;
     public Text scoreText;
     public int strength = 1;
     public int score = 1;
-    public int speed = 2;
+    public int speed = 1;
     public List<Monster> monsters = new List<Monster>();
     public bool isClickCooldownEnabled = true;
     private bool hasteClickedOnce = false;
@@ -30,8 +31,6 @@ public class GameManager : MonoBehaviour
     public GameObject StrengthObject;
     public Text RespawnText;
     public Spawner spawner;
-
-    // Cached references to spawned instances
     [HideInInspector] public Monster monsterInstance;
     [HideInInspector] public StrengthScript strengthInstance;
     [HideInInspector] public HasteScript hasteInstance;
@@ -76,6 +75,11 @@ public class GameManager : MonoBehaviour
 
     public void Play()
     {
+        strength = 1;
+        score = 1;
+        speed = 2;
+        isClickCooldownEnabled = true;
+        hasteClickedOnce = false;
         mainMenuText.enabled = false;
         playButton.SetActive(false);
         strengthTextUI.enabled = true;
@@ -89,9 +93,11 @@ public class GameManager : MonoBehaviour
         SpeedText.SetActive(true);
         Speed.SetActive(true);
         spawner.StartSpawning();
+        isGameActive = true;
+        ScoreObject.GetComponent<Text>().text = score.ToString();
+        StrengthObject.GetComponent<Text>().text = strength.ToString();
+        Speed.GetComponent<Text>().text = "1";
         RespawnText.gameObject.SetActive(false);
-
-        // Enable or reset other gameplay objects if needed
     }
 
     public void Pause()
@@ -133,6 +139,7 @@ public class GameManager : MonoBehaviour
         SpeedText.SetActive(true);
         Speed.SetActive(true);
         spawner.StartSpawning();
+        isGameActive = true;
         RespawnText.gameObject.SetActive(false);
     }
 
@@ -190,6 +197,7 @@ public class GameManager : MonoBehaviour
             // Optionally log or handle this if you expect score to always be valid
             Debug.LogWarning("Score text could not be parsed: " + scoreTextUI.text);
         }
+
     }
 
     public void speedUp()
